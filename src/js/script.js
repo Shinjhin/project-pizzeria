@@ -88,6 +88,7 @@
       console.log('formInputs will find: ', thisProduct.formInputs);    
       thisProduct.cartButton = thisProduct.element.querySelector(select.menuProduct.cartButton);
       thisProduct.priceElem = thisProduct.element.querySelector(select.menuProduct.priceElem);
+      thisProduct.imageWrapper = thisProduct.element.querySelector(select.menuProduct.imageWrapper);
     }  
       
     initAccordion(){
@@ -153,6 +154,8 @@
         const param = thisProduct.data.params[paramId];
         console.log(paramId, param);
 
+          
+          
         // for every option in this category
         for(let optionId in param.options) {
           // determine option value, e.g. optionId = 'olives', option = { label: 'Olives', price: 2, default: true }
@@ -173,6 +176,17 @@
               price -= option.price;   
             }
           }
+            
+          const image = thisProduct.imageWrapper.querySelector('.' + paramId + '-' + optionId);
+          console.log('image:', image);     
+          if(image) {
+            if(formData[paramId] && formData[paramId].includes(optionId)) {
+              image.classList.add(classNames.menuProduct.imageVisible);
+            } else {
+              image.classList.remove(classNames.menuProduct.imageVisible);
+            }
+          }  
+            
         }
       }
       // update calculated price in the HTML
