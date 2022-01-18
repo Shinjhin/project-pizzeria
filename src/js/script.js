@@ -426,6 +426,11 @@
 
     remove(removedProduct) {
       const thisCart = this;
+
+      const indexOfRemovedProduct = thisCart.products.indexOf(removedProduct);    // wybiera index z tablicy thisCart.products
+      removedProduct.dom.wrapper.remove();
+      thisCart.products.splice(indexOfRemovedProduct, 1);                         // wycina indexOfRemovedProduct
+      thisCart.update();  
     }
   }
     
