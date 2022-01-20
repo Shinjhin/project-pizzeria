@@ -64,6 +64,11 @@
   };
 
   const settings = {
+    db: {
+      url: '//localhost:3131',
+      products: 'products',
+      orders: 'orders',
+    },     
     amountWidget: {
       defaultValue: 1,
       defaultMin: 1,
@@ -357,7 +362,7 @@
 
       thisCart.getElements(element);
       thisCart.initActions(element);
-      console.log('new Cart', thisCart);
+      thisCart.sendOrder();
     }
 
     getElements(element) {
@@ -373,6 +378,9 @@
       thisCart.dom.totalPrice = thisCart.dom.wrapper.querySelector(select.cart.totalPrice);
       thisCart.dom.totalPriceBottom = thisCart.dom.wrapper.querySelector(select.cart.totalPriceBottom);
       thisCart.dom.totalNumber = thisCart.dom.wrapper.querySelector(select.cart.totalNumber);
+      thisCart.dom.form = thisCart.dom.wrapper.querySelector(select.cart.form);
+      thisCart.dom.address = thisCart.dom.wrapper.querySelector(select.cart.address);
+      thisCart.dom.phone = thisCart.dom.wrapper.querySelector(select.cart.phone);
     }
 
     initActions(){
@@ -384,8 +392,12 @@
       thisCart.dom.productList.addEventListener('updated', function(){
         thisCart.update();
       });
-      thisCart.dom.productList.addEventListener('remove',function(){
+      thisCart.dom.productList.addEventListener('remove',function(event){
         thisCart.remove(event.detail.cartProduct);
+      });
+      thisCart.dom.form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        thisCart.sendOrder();
       });
     }
 
@@ -431,6 +443,36 @@
       removedProduct.dom.wrapper.remove();
       thisCart.products.splice(indexOfRemovedProduct, 1);                         // wycina indexOfRemovedProduct
       thisCart.update();  
+    }
+
+    sendOrder() {
+      const thisCart = this;
+
+      const url = settings.db.url + '/' + settings.db.orders;
+
+      const payLoad = {};
+
+      payLoad.address = thisCart.dom.address.value;
+      payLoad.phone = thisCart.dom.phone.value;
+      payLoad.totalPrice = thisCart.totalPrice;
+      payLoad.subtotalPrice = thisCart.subtotalPrice;
+      payLoad.totalNumber = thisCart.totalNumber;
+      payLoad.deliveryFee = thisCart.deliveryFee;
+      payLoad.products = [];
+
+      for(let prod of thisCart.products) {
+        payLoad.products.push(prod.getData());
+      }
+      console.log('payLoad: ', payLoad);
+
+      const options =  {
+        method: 'POST',
+        headers: {
+          'Content-type': 'application/json',
+        } ,
+        body: JSON.stringify(payLoad),
+      };
+      fetch(url, options);
     }
   }
     
@@ -498,16 +540,50 @@
         thisCartProduct.remove();
       });
     }
+
+    getData() {
+      const thisCartProduct = this;
+
+      const dbProducts = {};
+      dbProducts.id = thisCartProduct.id;
+      dbProducts.name = thisCartProduct.name;
+      dbProducts.amount = thisCartProduct.amount;
+      dbProducts.priceSingle = thisCartProduct.priceSingle;
+      dbProducts.price = thisCartProduct.price;
+      dbProducts.params = thisCartProduct.params;
+
+      return dbProducts;
+    }
   }
 
-  const app = {
+  const app = { 
+    initData: function() {
+      const thisApp = this;
+
+      thisApp.data = {};
+      const url = settings.db.url + '/' + settings.db.products;
+
+      fetch(url)
+        .then(function(rawResponse){
+          return rawResponse.json();
+        })
+        .then(function(parsedResponse){
+          console.log('parsedResponse', parsedResponse);
+
+          thisApp.data.products = parsedResponse;         // save parsedResponse as thisApp.data.products 
+
+          thisApp.initMenu();                             // execute initMenu method 
+        });
+      console.log('thisApp.data', JSON.stringify(thisApp.data));
+    },
+
     initMenu: function(){
       const thisApp = this;
       // console.log('thisApp.data: ', thisApp.data);    
       for(let productData in thisApp.data.products){
-        new Product(productData, thisApp.data.products[productData]);  //productData to obiekt o nazwie typu:cake, pizza, salad itp
-      }                                                                //thisApp.data.products[productData] to obiekty w np.cake
-    },                                                                 //opisujące dane ciasto np. rozmiar, nazwa, koszt, opis itd.
+        new Product(thisApp.data.products[productData], thisApp.data.products[productData]);
+      }             /*productData /* nazwa aktualnie "obsługiwanej" właściwości, czyli np. class/name/price */
+    },                                                  /* parametry dla włąściwości */
     
     initCart: function() {
       const thisApp = this;
@@ -515,11 +591,7 @@
       const cartElem = document.querySelector(select.containerOf.cart);
       thisApp.cart = new Cart(cartElem);
     },
-    
-    initData: function(){
-      const thisApp = this;    
-      thisApp.data = dataSource;
-    }, 
+
       
     init: function(){
       const thisApp = this;
@@ -530,7 +602,6 @@
       //console.log('templates:', templates);
       
       thisApp.initData();
-      thisApp.initMenu();
       thisApp.initCart();
     },
   };
