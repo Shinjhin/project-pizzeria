@@ -98,12 +98,10 @@ class Product {
         const image = thisProduct.imageWrapper.querySelector('.' + paramId + '-' + optionId);
 
         if (image) {
-          if (formData[paramId] && formData[paramId].includes(optionId)) {
-            if (optionSelected) {
-              image.classList.add(classNames.menuProduct.imageVisible);
-            } else {
-              image.classList.remove(classNames.menuProduct.imageVisible);
-            }
+          if (optionSelected) {
+            image.classList.add(classNames.menuProduct.imageVisible);
+          } else {
+            image.classList.remove(classNames.menuProduct.imageVisible);
           }
         }
         
