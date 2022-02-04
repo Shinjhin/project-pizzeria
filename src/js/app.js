@@ -51,9 +51,10 @@ const app = {
 
     //add class "active" to matching link, remove from non-matching
     for(let link of thisApp.navLinks){
-      link.addEventListener('click', function(){
-        link.classList.toggle('active');
-      });
+      link.classList.toggle(
+        classNames.nav.active,
+        link.getAttribute('href') == '#' + pageId
+      );
     }
 
   },
