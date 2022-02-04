@@ -12,7 +12,7 @@ class Booking{
   constructor(element){
     const thisBooking = this;
 
-    thisBooking.select = [];
+    thisBooking.selectedTable;
     
     thisBooking.render(element);
     thisBooking.initWidgets();
@@ -88,21 +88,21 @@ class Booking{
 
     thisBooking.booked = {};
 
-    for(let item of bookings){
-      thisBooking.makeBooked(item.date, item.hour, item.duration, item.table);
+    for(let payLoad of bookings){
+      thisBooking.makeBooked(payLoad.date, payLoad.hour, payLoad.duration, payLoad.table);
     }
 
-    for(let item of eventsCurrent){
-      thisBooking.makeBooked(item.date, item.hour, item.duration, item.table);
+    for(let payLoad of eventsCurrent){
+      thisBooking.makeBooked(payLoad.date, payLoad.hour, payLoad.duration, payLoad.table);
     }
 
     const minDate = thisBooking.datePicker.minDate;
     const maxDate = thisBooking.datePicker.maxDate;
 
-    for(let item of eventsRepeat){
-      if(item.repeat == 'daily'){
+    for(let payLoad of eventsRepeat){
+      if(payLoad.repeat == 'daily'){
         for(let loopDate = minDate; loopDate <= maxDate; loopDate = utils.addDays(loopDate, 1)){
-          thisBooking.makeBooked(utils.dateToStr(loopDate), item.hour, item.duration, item.table);
+          thisBooking.makeBooked(utils.dateToStr(loopDate), payLoad.hour, payLoad.duration, payLoad.table);
         }
       }
     }
