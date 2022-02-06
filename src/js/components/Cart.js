@@ -10,7 +10,6 @@ class Cart {
 
     thisCart.getElements(element);
     thisCart.initActions(element);
-    thisCart.sendOrder();
   }
 
   getElements(element) {
